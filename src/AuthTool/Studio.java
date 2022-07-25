@@ -1,9 +1,12 @@
 package AuthTool;
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,6 +21,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Studio extends Application {
@@ -69,18 +73,4 @@ public class Studio extends Application {
 	    		 );
 	 }
 	 
-	public void textToSpeech() {
-		try {
-			// Load person overview.
-	        FXMLLoader loader = new FXMLLoader();
-	        loader.setLocation(Studio.class.getResource("TextToSpeech.fxml"));
-	        AnchorPane sttDialog = (AnchorPane) loader.load();
-	            
-	        // Set person overview into the center of root layout.
-	        rootLayout.setCenter(personOverview);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
 }

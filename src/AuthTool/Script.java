@@ -1,10 +1,14 @@
 package AuthTool;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -12,6 +16,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /*
  * Class xử lý một đoạn mô tả slide sẽ được text-to-speech cùng với một số action Key hoặc Mouse 
@@ -35,16 +41,28 @@ public class Script {
 	public BorderPane mainPane; // pane chứa các UI component để xử lý text
 	public TextArea text; // chứa text cần to speech 
 	
+	public String audio_file;
+	
 	public void initialize(int textWidth) {
 		mainPane = new BorderPane();
 		
 		topPane = new GridPane();
 		topPane.setHgap(2);
 		topPane.setVgap(2);
-		addActionBtn = new Button("Tương tác");
+		addActionBtn = new Button("Thêm tương tác");
 	    topPane.addRow(0, addActionBtn);
-	    toSpeechBtn = new Button("Thuyết minh");
+	    toSpeechBtn = new Button("Tạo thuyết minh");
 	    topPane.addRow(0, toSpeechBtn);
+	    toSpeechBtn.setOnAction(new EventHandler<ActionEvent>() {
+	    	 
+	    	 @Override
+	    	 public void handle(ActionEvent arg0) {  
+	    		 // TODO Auto-generated method stub  
+	             System.out.println("Text to speech...");
+	             scenario.textToSpeechDialog(toSpeechBtn);
+	          }  
+	    });
+	    
 	    previewBtn = new Button("Xem trước");
 	    topPane.addRow(0, previewBtn);
 	    topPane.addRow(1, new Button("..."));
@@ -119,8 +137,10 @@ public class Script {
 		mainPane.setRight(rightPane);
 			    	    
 	    text = new TextArea();
+	    text.setWrapText(true);
 	    text.setPrefHeight(50);
 	    text.setPrefWidth(textWidth);
+	    text.setText("Chào các bạn. Chúng ta sang phần routing protocol tiếp theo có tên là OSPF.");
 	    mainPane.setCenter(text);    
 	}
 	

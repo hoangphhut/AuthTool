@@ -1,14 +1,22 @@
 package AuthTool;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /*
  * Class nối nhiều OneText để thành một kịch bản trình bày bài giảng 
@@ -210,4 +218,37 @@ public class Scenario {
 	    }
 	    */
 	}
+	
+	public void textToSpeechDialog(Button b) {
+		int index = -1;
+		for (int i=0; i<scenario.size(); i++) {
+			Script t = scenario.get(i);
+			if (t.toSpeechBtn == b) {
+				index = i;				
+				break;
+			}
+		}
+		if (index < 0) return;
+		
+		try {
+			System.out.println("/: " + getClass().getResource("/").toString());
+			System.out.println(": " + getClass().getResource("").toString());
+			URL fxmlLocation = getClass().getResource("../TextToSpeech.fxml");
+       	 	System.out.println("URL: " + fxmlLocation.toString());
+       	 	FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
+       	 	Parent parent = fxmlLoader.load();
+       	 	TextToSpeechController ttsDlg = fxmlLoader.<TextToSpeechController>getController();
+       	 	System.out.println("controller: " + ttsDlg.toString());
+       	 	ttsDlg.TextTa.setText(scenario.get(index).text.getText());
+
+       	 	Scene scene = new Scene(parent);
+       	 	Stage stage = new Stage();
+       	 	stage.initModality(Modality.APPLICATION_MODAL);
+       	 	stage.setScene(scene);
+       	 	stage.showAndWait();
+
+        } catch (Exception e) {
+       	 	e.printStackTrace();
+        }
+	 }
 }

@@ -1,6 +1,6 @@
 package AuthTool;
 
-public class SlideAction {
+public class SlideAction { 
 	public int ActionCode;
 	
 	public SlideAction(int code) {
