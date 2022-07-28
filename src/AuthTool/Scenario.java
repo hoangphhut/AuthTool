@@ -7,6 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -14,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -23,56 +28,77 @@ import javafx.stage.Stage;
  */
 public class Scenario {
 	public static int COL_WIDTH_1 = 130; // độ rộng cột chưa các button
+	public static List<Paragraph>all_paragraph = null;
+	public static String FileName = null;
+	public static String WorkingDir = null;
 	
-	public GridPane gridPane; // để chứa các OneText, mỗi cái 1 dòng
+	public BorderPane parrent; //pane chứa scrollPane (là root của app)
 	public ScrollPane scrollPane; // để chứa gridPane, hiển thị scroll tự động
+	public GridPane gridPane; // để chứa các OneText, mỗi cái 1 dòng
 	
-	List<Script> scenario;
-	
-	public void initialize(int width) {
+	public String vbee_Authorization = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NTgxMzMwMjl9.mXlTv4WfK9C1rUFcUUgxfx_1QYjZg7UHrhM0FpOeVkc";
+	public String vbee_app_id = "985eefdc-3a15-4949-a803-8979172fc6ca";
+	public String vbee_callback_url = "http://daotao.ai:8080/vbee/api";
+	public String vbee_voice_code = "hn_male_manhdung_news_48k-fhg";
+	public String vbee_speed_rate = "0.8";
+		
+	/*
+	 * Reset nội dung Scenario và hiển thị ban đâu (luôn có 1 paragraph)
+	 */
+	public void initUI(BorderPane p) {
 		gridPane = new GridPane();
-		scenario = new ArrayList<Script>();
-		
-		Script firstText = new Script();
-		firstText.initialize(width - COL_WIDTH_1);
-		firstText.scenario = this;
-		firstText.showButtonFirst(true);
-		firstText.showButtonLast(true);
-		gridPane.addRow(0, firstText.mainPane);
-		
-		scenario.add(firstText);
-		
+		gridPane.setVisible(false);
 		scrollPane = new ScrollPane();
 	    scrollPane.setContent(gridPane);
-	    
 	    gridPane.setGridLinesVisible(true);
+	    
+	    this.parrent = p;
+	    parrent.setCenter(scrollPane);
+	    
+	    for (int i=0; i<all_paragraph.size(); i++) {
+	    	Paragraph par = all_paragraph.get(i);
+			par.initUI(i, gridPane);
+	    }
+	    this.validateAllButtons();
 	}
-	
+	/*
+	 * Hàm reset dữ liệu Scenario. Luôn có paragraph đầu tiên
+	 */
+	public void initData(Paragraph firstP) {
+		all_paragraph = new ArrayList<Paragraph>();
+		
+		if (firstP == null) {
+			firstP = new Paragraph();
+			firstP.initData("", null, null, null, null);
+		}		
+		firstP.scenario = this;	
+		all_paragraph.add(firstP);
+	}
 	/*
 	 * Hàm thiết lập lại các button của toàn bộ Text tùy theo vị trí (last/first)
 	 */
 	public void validateAllButtons() {
-		for (int i=0; i<scenario.size(); i++) {
-			Script oneT = scenario.get(i);
+		for (int i=0; i<all_paragraph.size(); i++) {
+			Paragraph oneT = all_paragraph.get(i);
 			if (i == 0) {
 				oneT.showButtonFirst(true);
 			} else {
 				oneT.showButtonFirst(false);
 			}
-			if (i == scenario.size()-1) {
+			if (i == all_paragraph.size()-1) {
 				oneT.showButtonLast(true);
 			} else {
 				oneT.showButtonLast(false);
 			}
 		}
 	}
-	public void addNewText() {
-		Script oneText = new Script();
-		oneText.initialize((int) scenario.get(0).text.getWidth());
-		oneText.scenario = this;
-		gridPane.addRow(scenario.size(), oneText.mainPane);
-		scenario.add(oneText);
-		oneText.text.requestFocus();
+	public void addNewParagraph() {
+		Paragraph oneP = new Paragraph();
+		oneP.initData("", null, null, null, null);
+		oneP.scenario = this;
+		oneP.initUI(all_paragraph.size(), gridPane);
+		all_paragraph.add(oneP);
+		oneP.textArea.requestFocus();
 		this.validateAllButtons();
 		this.debug();
 	}
@@ -80,30 +106,23 @@ public class Scenario {
 	/*
 	 * Hàm thêm thành phần Text mới vào phía trước thành phần chứa Button b (được click)
 	 */
-	public void insertText(Button b) {
-		int index = -1; // sẽ chứa index đến thành phần text chứa button b
+	public void insertParagraph(Button b) {
+		Paragraph curP = Paragraph.search_paragraph_by_clicked_button(b);
+		if (curP == null) return; // không tìm thấy thành phần text cần insert
+		int index = Studio.sc.all_paragraph.indexOf(curP);
 		
-		for (int i=0; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
-			if (t.insertBtn == b) {
-				index = i;
-				System.out.println("Chèn text... tại vị trí #" + index);
-				break;
-			}
+		for (int i=index; i<all_paragraph.size(); i++) {
+			Paragraph p = all_paragraph.get(i);
+			gridPane.setRowIndex(p.mainPane, gridPane.getRowIndex(p.mainPane) + 1); // dịch tất cả các hàng xuống dưới, kể từ Paragraph hiện tại
 		}
-		if (index < 0) return; // không tìm thấy thành phần text cần insert
 		
-		Script oneText = new Script();
-		oneText.initialize((int) scenario.get(0).text.getWidth());
-		oneText.scenario = this;
-		scenario.add(index, oneText);
-				
-		for (int i=index+1; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
-			gridPane.setRowIndex(t.mainPane, gridPane.getRowIndex(t.mainPane) + 1);
-		}
-		gridPane.addRow(index, oneText.mainPane);
-		oneText.text.requestFocus();
+		Paragraph oneP = new Paragraph(); // thêm paragraph mới để điền vào hàng uiIdx (đã trống)
+		oneP.initData("", null, null, null, null);
+		oneP.scenario = this;
+		oneP.initUI(index, gridPane); //khi GUI hiển thị thì vị trí Paragraph trên list giống với data trong List
+
+		all_paragraph.add(index, oneP); // thêm dữ liệu paragraph vào vị trí dataIdx
+		oneP.textArea.requestFocus();
 		this.validateAllButtons();
 		this.debug();
 	}
@@ -111,26 +130,19 @@ public class Scenario {
 	/*
 	 * Hàm xóa thành phần text trên scenbario tương ứng với button b được click
 	 */
-	public void deleteText(Button b) {
-		int index = -1; // sẽ chứa index đến thành phần text chứa button b
-		Script oneT = null;
-		for (int i=0; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
-			if (t.deleteBtn == b) {
-				index = i;
-				oneT = scenario.get(index);
-				scenario.remove(index); 				
-				break;
-			}
-		}
-		if (index < 0) return; // không tìm thấy thành phần text cần xóa
+	public void deleteParagraph(Button b) {
+		Paragraph curP = Paragraph.search_paragraph_by_clicked_button(b);
+		if (curP == null) return; // không tìm thấy thành phần text cần insert
+		int index = Studio.sc.all_paragraph.indexOf(curP);
 		
-		System.out.println("deleText() #" + index);
-		gridPane.getChildren().remove(oneT.mainPane);
-		for (int i=index; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
-			gridPane.setRowIndex(t.mainPane, gridPane.getRowIndex(t.mainPane) - 1);
-		}
+		gridPane.getChildren().remove(curP.mainPane); // khi xóa một cell thì các cell được tự động đẩy lên theo cấu trúc của grid		
+		all_paragraph.remove(curP);
+		// đánh lại rowIndex không cần thiết. Sau một số thao tác add/insert/delete thì các rowIndex không liền nhau (có khoảng trông), nhưng cũng không sao 
+		//for (int i=index; i<all_paragraph.size(); i++) {
+		//	Paragraph p = all_paragraph.get(i);
+		//	gridPane.setRowIndex(p.mainPane, gridPane.getRowIndex(p.mainPane) - 1);
+		//}
+		
 		this.validateAllButtons();
 	    this.debug();
 	}
@@ -139,30 +151,23 @@ public class Scenario {
 	 * Hàm di chuyển text chứa Button b lên trên một hàng
 	 */
 	public void moveTextUp(Button b) {
-		int index = -1; // sẽ chứa index đến thành phần text chứa button b
-		
-		for (int i=0; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
-			if (t.moveUpBtn == b) {
-				index = i;				
-				break;
-			}
-		}
-		if (index < 0) return; // không tìm thấy thành phần text cần xóa
+		Paragraph curP = Paragraph.search_paragraph_by_clicked_button(b);
+		if (curP == null) return; // không tìm thấy thành phần text cần insert
+		int index = Studio.sc.all_paragraph.indexOf(curP);
 		
 		System.out.println("moveTextUp() #" + index);
-		Script oneT = scenario.get(index);
-		scenario.remove(index);
-		scenario.add(index-1, oneT);
+		Paragraph oneT = all_paragraph.get(index);
+		all_paragraph.remove(index);
+		all_paragraph.add(index-1, oneT);
 		
 		int i = gridPane.getRowIndex(oneT.mainPane);
 		gridPane.setRowIndex(oneT.mainPane, i-1);
-		Script t = scenario.get(index);
+		Paragraph t = all_paragraph.get(index);
 		i = gridPane.getRowIndex(t.mainPane);
 		gridPane.setRowIndex(t.mainPane, i+1);
 		
 		this.validateAllButtons();
-		oneT.text.requestFocus();
+		oneT.textArea.requestFocus();
 		this.debug();
 	}
 	
@@ -170,59 +175,106 @@ public class Scenario {
 	 * Hàm di chuyển text chứa Button b xuống dưới một hàng
 	 */
 	public void moveTextDown(Button b) {
-		int index = -1; // sẽ chứa index đến thành phần text chứa button b
-		
-		for (int i=0; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
-			if (t.moveDownBtn == b) {
-				index = i;				
-				break;
-			}
-		}
-		if (index < 0) return; // không tìm thấy thành phần text cần xóa
+		Paragraph curP = Paragraph.search_paragraph_by_clicked_button(b);
+		if (curP == null) return; // không tìm thấy thành phần text cần insert
+		int index = Studio.sc.all_paragraph.indexOf(curP);
 		
 		System.out.println("moveTextDown() #" + index);
-		Script oneT = scenario.get(index);
-		scenario.remove(index);
-		scenario.add(index+1, oneT);
+		Paragraph oneT = all_paragraph.get(index);
+		all_paragraph.remove(index);
+		all_paragraph.add(index+1, oneT);
 		
 		int i = gridPane.getRowIndex(oneT.mainPane);
 		gridPane.setRowIndex(oneT.mainPane, i+1);
-		Script t = scenario.get(index);
+		Paragraph t = all_paragraph.get(index);
 		i = gridPane.getRowIndex(t.mainPane);
 		gridPane.setRowIndex(t.mainPane, i-1);
 		
 		this.validateAllButtons();
-		oneT.text.requestFocus();
+		oneT.textArea.requestFocus();
 		this.debug();
 	}
 	
 	public void resize(int width) {
-		for (int i=0; i<scenario.size(); i++) {
-		    Script t = scenario.get(i);
-		    t.text.setPrefWidth(width - COL_WIDTH_1);
+		for (int i=0; i<all_paragraph.size(); i++) {
+		    Paragraph t = all_paragraph.get(i);
+		    t.textArea.setPrefWidth(width - COL_WIDTH_1);
 		}
 	}
 	
 	public void debug() {
-		System.out.print("Scenario:");
-		for (int i = 0; i<scenario.size(); i++) {
-			Script oneT = scenario.get(i);
-			System.out.print(" [#" + i + ": " + oneT.text.getText() + "]");
-		}
 		/*
+		System.out.print("Scenario:");
+		for (int i = 0; i<all_paragraph.size(); i++) {
+			Paragraph oneT = all_paragraph.get(i);
+			System.out.print(" [#" + i + ": " + oneT.textArea.getText() + "]");
+		}
+		*/
 		System.out.print("\nGridPane:");
-		for (Node child : gridPane.getChildren()) {
-	        Integer rowIndex = GridPane.getRowIndex(child);
-	        System.out.print(" [#" + rowIndex.intValue() + "]");
+		ObservableList<Node> paraLine = gridPane.getChildren();
+		for (int i=0; i<paraLine.size(); i++) {
+			Node nd = paraLine.get(i);
+	        System.out.println(" #" + i + " " + "rowIndex: " + gridPane.getRowIndex(nd) + " " + nd.toString());
 	    }
-	    */
+	    
 	}
 	
+	public void addPresentationAction(Button b) {
+		Paragraph par = Paragraph.search_paragraph_by_clicked_button(b);
+		if (par == null) return;
+		
+		try {
+			URL fxmlLocation = getClass().getResource("../ActionDialogBox.fxml");
+			System.out.println("URL: " + fxmlLocation.toString());
+			FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
+			Parent parent = fxmlLoader.load();
+			ActionDialogController controller = fxmlLoader.<ActionDialogController>getController();
+			System.out.println("controller: " + controller);
+			controller.WorkingMode = 0; //add new mode
+			controller.initialize(par, null);
+			Scene scene = new Scene(parent);
+			Studio.pActionDialogStage = new Stage();
+			Studio.pActionDialogStage.initModality(Modality.APPLICATION_MODAL);
+			Studio.pActionDialogStage.setScene(scene);
+			Studio.pActionDialogStage.setTitle("Thêm thao tác trình diễn");
+			Studio.pActionDialogStage.showAndWait();
+        } catch (Exception e) {
+       	 	e.printStackTrace();
+        }
+	}
+	
+	public void editPresentationAction(Button b) {
+		Paragraph par = Paragraph.search_paragraph_by_clicked_button(b);
+		if (par == null) return;
+		System.out.println("Found para: " + par.toJson());
+   	 	int n = Paragraph.search_presentation_action_by_clicked_button(par, b);
+   	 	if (n < 0) return;
+   		System.out.println("Found edit button #" + n);
+   	 
+		try {
+			URL fxmlLocation = getClass().getResource("../ActionDialogBox.fxml");
+			System.out.println("URL: " + fxmlLocation.toString());
+			FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
+			Parent parent = fxmlLoader.load();
+			ActionDialogController controller = fxmlLoader.<ActionDialogController>getController();
+			System.out.println("controller: " + controller);
+			controller.WorkingMode = 1; //edit mode
+			controller.initialize(par, par.all_actions.get(n));
+			Scene scene = new Scene(parent);
+			Studio.pActionDialogStage = new Stage();
+			Studio.pActionDialogStage.initModality(Modality.APPLICATION_MODAL);
+			Studio.pActionDialogStage.setScene(scene);
+			Studio.pActionDialogStage.setTitle("Sửa thao tác trình diễn");
+			Studio.pActionDialogStage.showAndWait();
+        } catch (Exception e) {
+       	 	e.printStackTrace();
+        }
+	}
+
 	public void textToSpeechDialog(Button b) {
 		int index = -1;
-		for (int i=0; i<scenario.size(); i++) {
-			Script t = scenario.get(i);
+		for (int i=0; i<all_paragraph.size(); i++) {
+			Paragraph t = all_paragraph.get(i);
 			if (t.toSpeechBtn == b) {
 				index = i;				
 				break;
@@ -231,24 +283,64 @@ public class Scenario {
 		if (index < 0) return;
 		
 		try {
-			System.out.println("/: " + getClass().getResource("/").toString());
-			System.out.println(": " + getClass().getResource("").toString());
 			URL fxmlLocation = getClass().getResource("../TextToSpeech.fxml");
-       	 	System.out.println("URL: " + fxmlLocation.toString());
-       	 	FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
-       	 	Parent parent = fxmlLoader.load();
-       	 	TextToSpeechController ttsDlg = fxmlLoader.<TextToSpeechController>getController();
-       	 	System.out.println("controller: " + ttsDlg.toString());
-       	 	ttsDlg.TextTa.setText(scenario.get(index).text.getText());
-
-       	 	Scene scene = new Scene(parent);
-       	 	Stage stage = new Stage();
-       	 	stage.initModality(Modality.APPLICATION_MODAL);
-       	 	stage.setScene(scene);
-       	 	stage.showAndWait();
-
+			System.out.println("URL: " + fxmlLocation.toString());
+			FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
+			Parent parent = fxmlLoader.load();
+			Studio.ttsDialog = fxmlLoader.<TextToSpeechController>getController();
+			System.out.println("controller: " + Studio.ttsDialog);       	 	
+			Scene scene = new Scene(parent);
+			Studio.ttsDialogStage = new Stage();
+			Studio.ttsDialog.initToShow(all_paragraph.get(index));
+       	 	Studio.ttsDialogStage.initModality(Modality.APPLICATION_MODAL);
+       	 	Studio.ttsDialogStage.setScene(scene);
+       	 	Studio.ttsDialogStage.setTitle("Biên soạn dữ liệu âm thanh");
+       	 	Studio.ttsDialogStage.showAndWait();
         } catch (Exception e) {
        	 	e.printStackTrace();
         }
 	 }
+	
+	public String toJson() {
+		String s = "";
+		s = "{ \"vbee_Authorization\" : \"" + vbee_Authorization + "\", ";
+		s = s + "\"vbee_app_id\" : \"" + vbee_app_id + "\", ";
+		s = s + "\"vbee_callback_url\" : \"" + vbee_callback_url + "\", ";
+		s = s + "\"vbee_voice_code\" : \"" + vbee_voice_code + "\", ";
+		s = s + "\"vbee_speed_rate\" : " + vbee_speed_rate + ", ";
+		s = s + "\"scenario\" : [";
+		for (int i=0; i<all_paragraph.size()-1; i++) {
+			Paragraph p = all_paragraph.get(i);
+			s = s + p.toJson() + ",";
+		}
+		s = s + all_paragraph.get(all_paragraph.size()-1).toJson() + "] }";
+		System.out.println("Scenario: " + s);
+		return s;
+	}
+
+	/*
+	 * Hàm này được gọi để load dữ liệu, không liên quan đến giao diện
+	 */
+	public void fromJson(JsonObject jObj) {
+		try {
+			vbee_Authorization = jObj.get("vbee_Authorization").getAsString();
+			vbee_app_id = jObj.get("vbee_app_id").getAsString();
+			vbee_callback_url = jObj.get("vbee_callback_url").getAsString();
+			vbee_voice_code = jObj.get("vbee_voice_code").getAsString();
+			vbee_speed_rate = jObj.get("vbee_speed_rate").getAsString();
+			
+			all_paragraph = new ArrayList<Paragraph>();
+			JsonArray a = jObj.get("scenario").getAsJsonArray();
+			for (int i=0; i<a.size(); i++) {
+				Paragraph p = new Paragraph();
+				p.fromJson(a.get(i).getAsJsonObject());
+				p.scenario = this;
+				all_paragraph.add(p);
+			}
+			
+			System.out.println("Scenario: " + this.toJson());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

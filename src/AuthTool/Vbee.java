@@ -39,35 +39,37 @@ public class Vbee extends Thread {
     public String mp3_file = null; //file kết quả
     public String mp3_url = null; //url chứa file kết quả (sẽ bị xóa khi hết hạn)
     
-    public CheckBox ProgressCk; // để chọn có theo dõi tiến độ xử lý hay không
-    public TextArea ProgressLog; // để hiện thị thông tin tiến độ
+    public Paragraph paragraph = null; // Paragraph đang được Vbee xử lý
+    public CheckBox ProgressCk; // để chọn có theo dõi tiến độ xử lý hay không (xuất hiện trên TTSDialog)
+    public TextArea ProgressLog; // để hiện thị thông tin tiến độ (xuất hiện trên TTSDialog)
     
     public void log(String s) {
-    	if (ProgressCk != null && ProgressCk.isSelected()) {
-    		if (ProgressLog != null) {
-    			ProgressLog.setText(ProgressLog.getText() + "\n" + s);
-    			ProgressLog.positionCaret(ProgressLog.getText().length());
-    		}
-    	}
+  		if (ProgressCk != null && ProgressCk.isSelected()) {
+       		if (ProgressLog != null) {
+       			ProgressLog.setText(ProgressLog.getText() + "\n" + s);
+       			ProgressLog.positionCaret(ProgressLog.getText().length());
+       		}
+       	}    	
     }
     public void text_to_speech() {
         try {
         	CloseableHttpClient httpClient = HttpClients.createDefault();
     		String urlStr = "https://vbee.vn/api/v1/tts";
     		HttpPost httpPost = new HttpPost(urlStr);
-    	    httpPost.setHeader("Content-Type", "application/json");
+    	    httpPost.setHeader("Content-Type", "application/json; charset=utf-8");
     	    httpPost.setHeader("Authorization", "Bearer " + auth);
-    	    String body = "{\n"
-    	    		+ "    \"app_id\": \"" + app_id + "\",\n"
-    	    		+ "    \"callbackUrl\": \"" + callback_url + "\",\n"
-    	    		+ "    \"input_text\": \"" + text +"\",\n"
-    	    		+ "    \"voice_code\": \"" + voice_code + "\",\n"
-    	    		+ "    \"audio_type\": \"mp3\",\n"
-    	    		+ "    \"bitrate\": 128,\r\n"
-    	    		+ "    \"speed_rate\": " + speed_rate + "\n}";
-    	    StringEntity entity = new StringEntity(body);
+    	    String body = "{"
+    	    		+ "\"app_id\": \"" + app_id + "\", "
+    	    		+ "\"callbackUrl\": \"" + callback_url + "\", "
+    	    		+ "\"input_text\": \"" + text +"\", "
+    	    		+ "\"voice_code\": \"" + voice_code + "\", "
+    	    		+ "\"audio_type\": \"mp3\", "
+    	    		+ "\"bitrate\": 128, "
+    	    		+ "\"speed_rate\": " + speed_rate + "}";
+    	    StringEntity entity = new StringEntity(body, "UTF-8");
     	    log("Gửi dữ liệu lên Vbee:\n" + body);
     	    httpPost.setEntity(entity);
+    	    
     	    ResponseHandler<String> responseHandler = response -> {
                 int status = response.getStatusLine().getStatusCode();
                 // System.out.println("- Http response status: " + status);
@@ -93,6 +95,8 @@ public class Vbee extends Thread {
     		JsonParser parser = new JsonParser();
     		JsonObject respBodyJson = parser.parse(responseBody).getAsJsonObject();
     		request_id = respBodyJson.getAsJsonObject("result").get("request_id").getAsString();
+    		paragraph.vbee_request_id = request_id; // paragraph đã được gửi lên Vbeen với mã số request_id 
+    		paragraph.vbee_audio_url = null; // mp3 url cũ không còn giá trị
     		log("-> request_id: " + request_id);
     		this.start();
     		
@@ -132,12 +136,14 @@ public class Vbee extends Thread {
     		
     		if ("SUCCESS".compareTo(status.toUpperCase()) != 0) return status; // request đang xử lý hoặc có lỗi (chưa hoàn thành)
     		mp3_url = respBodyJson.getAsJsonObject("result").get("audio_link").getAsString();
+    		paragraph.vbee_audio_url = mp3_url;
     		log("-> audio_link: " + mp3_url);
     		
     		InputStream in = new URL(mp3_url).openStream();
     		mp3_file = new Date().getTime() + ".mp3";
     		Files.copy(in, Paths.get(working_dir + "/" + mp3_file), StandardCopyOption.REPLACE_EXISTING);
-    		log("-> mp3 file: " + mp3_file);
+    		log("-> mp3 file: " + working_dir + "/" + mp3_file);
+    		paragraph.audio_file = working_dir + "/" + mp3_file;
     		return status;
     		
     	} catch (Exception e) {

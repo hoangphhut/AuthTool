@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -22,21 +23,34 @@
       <TextArea fx:id="TextTa" editable="false" layoutX="14.0" layoutY="22.0" prefHeight="113.0" prefWidth="660.0" wrapText="true" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="40.0" />
       <ButtonBar layoutX="286.0" layoutY="254.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="20.0">
         <buttons>
-          <Button mnemonicParsing="false" text="Hủy bỏ" />
-            <Button layoutX="131.0" layoutY="18.0" mnemonicParsing="false" text="Hoàn thành" />
+            <Button layoutX="131.0" layoutY="18.0" mnemonicParsing="false" onAction="#CompleteBtClicked" text="Kết thúc" />
         </buttons>
       </ButtonBar>
       <TabPane layoutX="20.0" layoutY="95.0" prefHeight="159.0" prefWidth="460.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="170.0">
         <tabs>
+            <Tab text="File âm thanh">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="AudioFileLb" layoutX="36.0" layoutY="30.0" prefHeight="17.0" prefWidth="920.0" text="File âm thanh: " AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
+                        <Button fx:id="SelectFileBt" layoutX="66.0" layoutY="51.0" mnemonicParsing="false" onAction="#SelectFileBtClicked" text="Chọn file khác" />
+                        <Button fx:id="PlayBt" layoutX="173.0" layoutY="51.0" mnemonicParsing="false" onAction="#PlayBtClicked" text="Nghe thử" />
+                        <ImageView fx:id="PlayingImg" fitHeight="25.0" fitWidth="65.0" layoutX="256.0" layoutY="51.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                           <image>
+                              <Image url="@../img/playing.gif" />
+                           </image>
+                        </ImageView>
+                     </children></AnchorPane>
+               </content>
+            </Tab>
           <Tab text="Vbee">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <GridPane hgap="5.0" layoutX="34.0" layoutY="27.0" vgap="5.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="315.0" minWidth="10.0" prefWidth="121.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="668.0" minWidth="10.0" prefWidth="668.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="529.0" minWidth="10.0" prefWidth="21.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="315.0" minWidth="10.0" prefWidth="169.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="746.0" minWidth="10.0" prefWidth="746.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -56,20 +70,11 @@
                               <TextField fx:id="AuthorizationTf" text="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NTgxMzMwMjl9.mXlTv4WfK9C1rUFcUUgxfx_1QYjZg7UHrhM0FpOeVkc" GridPane.columnIndex="1" />
                               <TextField fx:id="app_idTf" layoutX="137.0" layoutY="17.0" text="985eefdc-3a15-4949-a803-8979172fc6ca" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <TextField fx:id="callback_urlTf" layoutX="137.0" layoutY="56.0" text="http://daotao.ai:8080/vbee/api" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                              <TextField fx:id="voice_codeTf" layoutX="137.0" layoutY="95.0" text="hn_male_manhdung_news_48k-fhg" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                              <TextField fx:id="speed_rateTf" layoutX="137.0" layoutY="134.0" text="1.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                              <Button fx:id="OpenVoiceBt" alignment="TOP_LEFT" mnemonicParsing="false" prefHeight="22.0" prefWidth="56.0" GridPane.columnIndex="2" GridPane.rowIndex="5" GridPane.rowSpan="2" GridPane.valignment="TOP">
-                                 <graphic>
-                                    <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../img/speaker.jpg" />
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </Button>
+                              <ChoiceBox fx:id="voice_codeCbx" prefHeight="25.0" prefWidth="805.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <ChoiceBox fx:id="speed_rateCbx" prefWidth="50.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                               <Button fx:id="TextToSpeechBt" alignment="TOP_LEFT" contentDisplay="CENTER" mnemonicParsing="false" onAction="#TextToSpeechBtnClicked" text="Tạo file âm thanh" GridPane.rowIndex="5" GridPane.valignment="TOP" />
                               <TextArea fx:id="LogTa" editable="false" prefHeight="201.0" prefWidth="568.0" text="file: 23857618374651932741.mp3&#10;thời gian tạo: 17:23:57.65 25/7/2022" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.rowSpan="2" />
-                              <CheckBox fx:id="ProgressCk" mnemonicParsing="false" text="Theo dõi tiến độ xử lý" GridPane.rowIndex="5" GridPane.valignment="TOP">
+                              <CheckBox fx:id="ProgressCk" mnemonicParsing="false" selected="true" text="Theo dõi tiến độ xử lý" GridPane.rowIndex="5" GridPane.valignment="TOP">
                                  <GridPane.margin>
                                     <Insets left="20.0" top="40.0" />
                                  </GridPane.margin>
@@ -86,11 +91,6 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>
           </Tab>
-            <Tab text="File">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-               </content>
-            </Tab>
         </tabs>
          <opaqueInsets>
             <Insets />
