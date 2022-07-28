@@ -20,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.robot.Robot;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -342,5 +343,35 @@ public class Scenario {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	 
+	/*
+	 * Hàm thực hiện preview kịch bản. Preview tức là không phát video, chỉ chạy các action.
+	 * Chạy nhanh từ đầu đến paragraph p-1, sau đó show p.
+	 * Trả về null nếu không thành công.
+	 */
+	public Process jumpToPreview(Robot robot, Paragraph p) {
+		Process process = new Studio().startPresentation();
+		if (process == null) return null;
+		
+		//reset các phím có liên quan 
+		//robot.keyRelease(javafx.scene.input.KeyCode.SHIFT);
+		//robot.keyRelease(javafx.scene.input.KeyCode.ALT);
+		//robot.keyRelease(javafx.scene.input.KeyCode.CONTROL);
+		//robot.keyPress(javafx.scene.input.KeyCode.ESCAPE);
+		
+		for (int i=0; i<all_paragraph.size(); i++) {
+			System.out.println("Quick jump to paragraph #" + i);
+			Paragraph pp = all_paragraph.get(i);
+			int delay = 0;
+			if (pp != p) delay = 0;
+			if (i > 0) {
+				pp.quickShow(robot, 0, delay);
+			} else {
+				pp.quickShow(robot, 1, delay); // action đầu tiên của para đầu tiên là mở file PPT (đã thực hiện trong Studio.startPresentation()
+			}
+			if (pp == p) return process;
+		}
+		return null;
 	}
 }

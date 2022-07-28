@@ -122,20 +122,20 @@ public class TextToSpeechController {
 	@FXML
     void PlayBtClicked(ActionEvent event) {
         System.out.println("PlayBt... " + paragraph.audio_file);
-        
-        Media media = new Media(new File(paragraph.audio_file).toURI().toString());
-        Studio.mediaPlayer = new MediaPlayer(media); 
-        //mediaPlayer.setAutoPlay(true);  
-        Studio.mediaPlayer.play();
 
-        PlayingImg.setVisible(true);
-        PlayBt.setDisable(true);
-        Studio.mediaPlayer.setOnEndOfMedia(() -> {
+        Studio.audioParagraph = new AudioParagraph();
+        Studio.audioParagraph.initalize(this.paragraph);
+        Studio.audioParagraph.manualSettingCompoleteAction = true;
+        
+        Studio.audioParagraph.mediaPlayer.setOnEndOfMedia(() -> {
         	System.out.println("Kết thúc play");
         	PlayingImg.setVisible(false);
         	PlayBt.setDisable(false);
-        	Studio.mediaPlayer.dispose();
-       });
+        });
+        
+        PlayingImg.setVisible(true);
+       	PlayBt.setDisable(true);
+        Studio.audioParagraph.start();
 	}
 	@FXML
     void SelectFileBtClicked(ActionEvent event) {

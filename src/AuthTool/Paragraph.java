@@ -108,6 +108,17 @@ public class Paragraph {
 	    
 	    previewBtn = new Button("Xem trước");
 	    topPane.addRow(0, previewBtn);
+	    previewBtn.setOnAction(new EventHandler<ActionEvent>() {
+	    	 
+	    	 @Override
+	    	 public void handle(ActionEvent e) {  
+	    		 // TODO Auto-generated method stub  
+	             System.out.println("Preview paragraph...");
+	             Paragraph p = Paragraph.search_paragraph_by_clicked_button((Button) e.getSource());
+	             Robot r = new Robot();	             
+	             p.present(r);
+	          }  
+	    });
 	    
 	    actionEditBtn = new ArrayList<Button>();
 	    for (int i=0; i<all_actions.size(); i++) {
@@ -260,7 +271,7 @@ public class Paragraph {
 		if (textArea != null) text = textArea.getText();
 		if (text == null) text = "";
 		s = s + "], ";
-		s = s + "\"text\" : \"" + text.replace("\n", ".") + "\", "; // xuống dòng được thay bằng chấm câu (Vbee không nhận text xuống dòng)
+		s = s + "\"text\" : \"" + text + "\", "; 
 		s = s + "\"audio_file\" : \"" + (this.audio_file != null ? this.audio_file : "") + "\",";
 		s = s + "\"vbee_audio_url\" : \"" + (this.vbee_audio_url != null ? this.vbee_audio_url : "") + "\",";
 		s = s + "\"vbee_request_id\" : \"" + (this.vbee_request_id != null ? this.vbee_request_id : "") + "\"";
@@ -293,6 +304,9 @@ public class Paragraph {
 		for (int i=0; i<Studio.sc.all_paragraph.size(); i++) {
 			Paragraph p = Studio.sc.all_paragraph.get(i);
 			if (p.addActionBtn == b) return p;
+			if (p.previewBtn == b) return p;
+			if (p.toSpeechBtn == b) return p;
+			
 			if (p.addBtn == b) return p;
 			if (p.deleteBtn == b) return p;
 			if (p.insertBtn == b) return p;
@@ -313,51 +327,63 @@ public class Paragraph {
 		return -1;
 	}
 	
-	public void present(Robot robot, int startAct) throws Exception {		
-		for (int j=startAct; j<all_actions.size(); j++) {
-			PreAction pA = all_actions.get(j);
-			System.out.println("Slide show action: " + pA.toString());
-			if (pA.ActionGroup.compareTo(PreAction.KEY) == 0) {
-				 if (pA.Action.compareTo(PreAction.F5) == 0) robot.keyPress(javafx.scene.input.KeyCode.F5);
-				 if (pA.Action.compareTo(PreAction.ENTER) == 0) robot.keyPress(javafx.scene.input.KeyCode.ENTER);
-				 if (pA.Action.compareTo(PreAction.LEFT) == 0) robot.keyPress(javafx.scene.input.KeyCode.LEFT);
-				 if (pA.Action.compareTo(PreAction.RIGHT) == 0) robot.keyPress(javafx.scene.input.KeyCode.RIGHT);
-				 if (pA.Action.compareTo(PreAction.PGUP) == 0) robot.keyPress(javafx.scene.input.KeyCode.PAGE_UP);
-				 if (pA.Action.compareTo(PreAction.PGDN) == 0) robot.keyPress(javafx.scene.input.KeyCode.PAGE_DOWN);
-				 if (pA.Action.compareTo(PreAction.SHIFT_F5) == 0) {
-					 robot.keyPress(javafx.scene.input.KeyCode.SHIFT);							 
-					 robot.keyPress(javafx.scene.input.KeyCode.F5);
-					 Thread.sleep(100);
-					 robot.keyRelease(javafx.scene.input.KeyCode.SHIFT);
-					 robot.keyRelease(javafx.scene.input.KeyCode.F5);
-				 }
-			 } else if (pA.ActionGroup.compareTo(PreAction.APP) == 0) {
-				 if (pA.Action.compareTo(PreAction.PPT_CLOSE) == 0) {
-					 System.out.println(" -> " + pA.toString() + " Key Escape...");
-					 robot.keyPress(javafx.scene.input.KeyCode.ESCAPE);
-					 Thread.sleep(200);
-					 System.out.println(" -> " + pA.toString() + " Key Alt...");
-					 robot.keyPress(javafx.scene.input.KeyCode.ALT);
-					 //Thread.sleep(200);
-					 System.out.println(" -> " + pA.toString() + " Key F4...");
-					 robot.keyPress(javafx.scene.input.KeyCode.F4);
-					 //Thread.sleep(200);
-					 //System.out.println(" -> " + pA.toString() + " ReleaseKey F4...");
+	/*
+	 * Hàm chỉ chạy các action, bắt đầu từ startAct, không phát audio.
+	 * Nếu thông số delay = 0 thì delay theo từng Action
+	 */
+	public void quickShow(Robot robot, int startAct, int delay) {
+		System.out.println(this.toString() + " -> quickShow() startAction: " + startAct);
+		try {
+			for (int j=startAct; j<all_actions.size(); j++) {
+				PreAction pA = all_actions.get(j);
+				System.out.println("-> action #" + j + ": " + pA.toString());
+								
+				if (pA.ActionGroup.compareTo(PreAction.KEY) == 0) {
+					 if (pA.Action.compareTo(PreAction.F5) == 0) robot.keyPress(javafx.scene.input.KeyCode.F5);
+					 if (pA.Action.compareTo(PreAction.ENTER) == 0) robot.keyPress(javafx.scene.input.KeyCode.ENTER);
+					 if (pA.Action.compareTo(PreAction.LEFT) == 0) robot.keyPress(javafx.scene.input.KeyCode.LEFT);
+					 if (pA.Action.compareTo(PreAction.RIGHT) == 0) robot.keyPress(javafx.scene.input.KeyCode.RIGHT);
+					 if (pA.Action.compareTo(PreAction.PGUP) == 0) robot.keyPress(javafx.scene.input.KeyCode.PAGE_UP);
+					 if (pA.Action.compareTo(PreAction.PGDN) == 0) robot.keyPress(javafx.scene.input.KeyCode.PAGE_DOWN);
 					 
-					 //Thread.sleep(200);
-					 System.out.println(" -> " + pA.toString() + " ReleaseKey Alt...");
-					 robot.keyRelease(javafx.scene.input.KeyCode.ALT);
-					 System.out.println(" -> " + pA.toString() + " ReleaseKey F4...");
-					 robot.keyRelease(javafx.scene.input.KeyCode.F4);
-					 Thread.sleep(200);
+					 if (pA.Action.compareTo(PreAction.SHIFT_F5) == 0) {
+						 robot.keyPress(javafx.scene.input.KeyCode.SHIFT);							 
+						 robot.keyPress(javafx.scene.input.KeyCode.F5);
+						 //Thread.sleep(100);
+						 robot.keyRelease(javafx.scene.input.KeyCode.SHIFT);
+						 robot.keyRelease(javafx.scene.input.KeyCode.F5);
+					 }
+					 
+				 } else if (pA.ActionGroup.compareTo(PreAction.APP) == 0) {
+					 if (pA.Action.compareTo(PreAction.PPT_CLOSE) == 0) {
+						 Studio.stopPresentation(robot);
+					 }
 				 }
-			 }
-			 if (pA.Delay > 0) Thread.sleep(1000 * pA.Delay);
+				if (delay > 0) {
+					Thread.sleep(delay);
+				} else if (pA.Delay > 0) {
+					Thread.sleep(pA.Delay);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		System.out.println("Kết thúc action, bắt đầu play audio: " + audio_file);
-		PlayAudio play = new PlayAudio();
-		play.audio_file = this.audio_file;
-		play.start();
+	}
+
+	public void present(Robot robot) {
+		if (robot == null) robot = new Robot();
+		
+		System.out.println("Quick jump to Paragraph...");
+		Studio.presentationProcess = Studio.sc.jumpToPreview(robot, this);
+		if (Studio.presentationProcess == null) return;
+
+		System.out.println("Bắt đầu play audio: " + audio_file);
+		Studio.audioParagraph = new AudioParagraph();
+		Studio.audioParagraph.initalize(this);
+		Studio.audioParagraph.stopPresentationByComplete = true;
+		Studio.audioParagraph.robot = robot;
+		Studio.audioParagraph.continueNextParagraph = true;
+		Studio.audioParagraph.start();
 
 	}
 }

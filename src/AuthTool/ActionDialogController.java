@@ -41,7 +41,7 @@ public class ActionDialogController {
 				PreAction.APP + " Ứng dụng trình diễn");
 		ActionCategoryCbx.setItems(actionCat);
 		
-		ObservableList<String> delayList = FXCollections.observableArrayList("0", "1", "2", "5", "10", "20", "30", "60");
+		ObservableList<String> delayList = FXCollections.observableArrayList("0", "100", "200", "500", "1000", "2000", "3000", "5000");
 		DelayCbx.setItems(delayList);
 		
 		if (WorkingMode == 0) { // Add new
@@ -74,13 +74,13 @@ public class ActionDialogController {
 			
 		} else if (aCat.startsWith(PreAction.KEY)) {
 			ObservableList<String> actionCat = FXCollections.observableArrayList(
+					PreAction.RIGHT,
+					PreAction.LEFT,
+					PreAction.PGUP,
+					PreAction.PGDN,
+					PreAction.ENTER,
 					PreAction.F5, 				 
-					PreAction.SHIFT_F5,
-					PreAction.ENTER, 
-					PreAction.LEFT, 
-					PreAction.RIGHT, 
-					PreAction.PGUP, 
-					PreAction.PGDN);
+					PreAction.SHIFT_F5);
 			ActionCbx.setItems(actionCat);
 			ActionCbx.getSelectionModel().select(0);
 		} else if (aCat.startsWith(PreAction.MOUSE)) {

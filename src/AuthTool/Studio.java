@@ -1,6 +1,7 @@
 package AuthTool;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,14 +41,17 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Studio extends Application {
-	public static String POWERPOINT = "C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE";
+	//public static String POWERPOINT = "C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE";
+	public static String POWERPOINT = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\POWERPNT.EXE";
+	
 	public static Stage pStage = null;
 	public static Scenario sc = null;
 	public static TextToSpeechController ttsDialog = null;
 	public static Stage ttsDialogStage = null;
-	public static Stage pActionDialogStage = null;
-	public static MediaPlayer mediaPlayer = null;
-	public static boolean PLAYING = false;
+	public static Stage pActionDialogStage = null;	
+	public static Stage pOptionDialogStage = null;
+	public static Process presentationProcess = null;
+	public static AudioParagraph audioParagraph = null;
 
 	public static void main(String[] args) {
 	    // Here you can work with args - command line parameters
@@ -169,24 +173,48 @@ public class Studio extends Application {
 	     FileMenu.getItems().add(2, new SeparatorMenuItem());
 	     FileMenu.getItems().add(5, new SeparatorMenuItem());
 	     
-	     Menu EditMenu=new Menu("Trình diễn");
-	     MenuItem EditMenu1=new MenuItem("Xem trước");
-	     EditMenu1.setOnAction(new EventHandler<ActionEvent>() {
+	     Menu PresentMenu=new Menu("Trình diễn");
+	     MenuItem PresentMenu1=new MenuItem("Xem trước");
+	     PresentMenu1.setOnAction(new EventHandler<ActionEvent>() {
 	         public void handle(ActionEvent event) {
-	    	     Studio.present();
+	    	     new Studio().startPresentation();
 	         }
 	     });
 	     MenuItem EditMenu2=new MenuItem("Xem trước nhanh");
 	     MenuItem EditMenu3=new MenuItem("Tạo Video");
-	     EditMenu.getItems().addAll(EditMenu1,EditMenu2,EditMenu3);
+	     MenuItem PresentMenu4=new MenuItem("Kết thúc trình diễn");
+	     PresentMenu4.setOnAction(new EventHandler<ActionEvent>() {
+	         public void handle(ActionEvent event) {
+	        	 System.out.println("Kết thúc trình diễn...");
+	    	     if (Studio.presentationProcess == null) return;
+	    	     System.out.println("Destroy process...");
+	    	     Studio.presentationProcess.destroy();
+
+	    	     Studio.presentationProcess = null;
+	    	     if (Studio.audioParagraph != null) {
+	    	    	 Studio.audioParagraph.stop();
+	    	    	 if (Studio.audioParagraph.mediaPlayer != null) {
+	    	    		 System.out.println("Stop audio playing...");
+	    	    		 Studio.audioParagraph.mediaPlayer.stop();
+	    	    		 Studio.audioParagraph.mediaPlayer = null;
+	    	    	 }			 
+	    	     }
+	         }
+	     });
+	     PresentMenu.getItems().addAll(PresentMenu1,EditMenu2,EditMenu3, PresentMenu4);
+	     PresentMenu.getItems().add(3, new SeparatorMenuItem());
 	     
 	     Menu OptionMenu=new Menu("Cấu hình");
-	     MenuItem OptionMenu1=new MenuItem("Ứng dụng trình diễn");
-	     MenuItem OptionMenu2=new MenuItem("Kết nối Vbee");
-	     MenuItem OptionMenu3=new MenuItem("Kết nối Google");
-	     OptionMenu.getItems().addAll(OptionMenu1,OptionMenu2,OptionMenu3);
-	     mainPane.setTop(menubar);  	       
-	     menubar.getMenus().addAll(FileMenu, EditMenu, OptionMenu); 
+	     MenuItem OptionMenu1=new MenuItem("Cấu hình trình diễn");
+	     OptionMenu1.setOnAction(new EventHandler<ActionEvent>() {
+	         public void handle(ActionEvent event) {
+	        	 System.out.println("Option setting...");
+	    	     new Studio().optionDialog();
+	         }
+	     });
+	     OptionMenu.getItems().addAll(OptionMenu1);
+	     mainPane.setTop(menubar);	     
+	     menubar.getMenus().addAll(FileMenu, PresentMenu, OptionMenu); 
 	     
 	     // pane xử lý text to speech 
 	     GridPane ttsPane = new GridPane();
@@ -199,7 +227,33 @@ public class Studio extends Application {
 	    		 );
 	 }
 	 
-	 public static void present() {
+	 public void optionDialog() {
+		 try {
+			 //System.out.println(Studio.class.getClassLoader().getResource("/"));
+			 URL fxmlLocation = getClass().getResource("../OptionView.fxml");
+			 if (fxmlLocation == null) return;
+			 System.out.println("URL: " + fxmlLocation.toString());
+			 FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
+			 Parent parent = fxmlLoader.load();
+			 OptionDialogController controller = fxmlLoader.<OptionDialogController>getController();
+			 System.out.println("controller: " + controller);
+			 controller.initialize();
+			 Scene scene = new Scene(parent);
+			 Studio.pOptionDialogStage = new Stage();
+			 Studio.pOptionDialogStage.initModality(Modality.APPLICATION_MODAL);
+			 Studio.pOptionDialogStage.setScene(scene);
+			 Studio.pOptionDialogStage.setTitle("Thiết lập các thông số cấu hình");
+			 Studio.pOptionDialogStage.showAndWait();
+		} catch (Exception e) {
+	       	 	e.printStackTrace();
+	    }
+	 }
+	 
+	 /*
+	  * Hàm kiểm tra kịch bản Scenario, chạy Powerpoint, mở file trình diễn.
+	  * Trả về null nếu không thành công
+	  */
+	 public Process startPresentation() {
 		 if (Studio.sc == null || Studio.sc.all_paragraph == null || Studio.sc.all_paragraph.size() == 0) {
 			 Alert alert = new Alert(AlertType.INFORMATION);
 			 alert.setTitle("Trình diễn");
@@ -207,7 +261,7 @@ public class Studio extends Application {
 			 String s ="Hãy tạo kịch bản trình diễn hoặc mở file trình diễn có sẵn.";
 			 alert.setContentText(s);
 			 alert.show();
-			 return;
+			 return null;
 		 }
 		 if (sc.all_paragraph.get(0).all_actions.size() == 0 || 
 				 (sc.all_paragraph.get(0).all_actions.get(0).Action.compareTo(PreAction.PPT_OPEN) != 0)) {
@@ -218,7 +272,7 @@ public class Studio extends Application {
 					 + " cùng với file PPT.";
 			 alert.setContentText(s);
 			 alert.show();
-			 return;
+			 return null;
 		 }
 
 		 PreAction pA = sc.all_paragraph.get(0).all_actions.get(0);
@@ -230,38 +284,48 @@ public class Studio extends Application {
 					 +"nhập đường dấn và tên file trình diễn vào mục 'Tham số'.";
 			 alert.setContentText(s);
 			 alert.show();
-			 return;
+			 return null;
 		 }
 		 
 		 try {
+			 
 			 System.out.println("Slide show action: " + pA.toString());
 			 Process p = new ProcessBuilder(Studio.POWERPOINT, pA.ActionPara).start();	
+ 
+			 if (pA.Delay > 0) Thread.sleep(pA.Delay); 
+			 //Thread.sleep(3000);
+			 return p;
 
-			 //delay 4ms  
-			 if (pA.Delay > 0) Thread.sleep(1000 * pA.Delay); 
-			 
-			 Robot robot = new Robot();
-			 //reset các phím tổ hợp
-			 robot.keyRelease(javafx.scene.input.KeyCode.SHIFT);
-			 robot.keyRelease(javafx.scene.input.KeyCode.ALT);
-			 robot.keyRelease(javafx.scene.input.KeyCode.CONTROL);
-			 
-			 for (int i=0; i<Studio.sc.all_paragraph.size(); i++) {
-				 Paragraph par = Studio.sc.all_paragraph.get(i);
-				 if (i == 0) {
-					 par.present(robot, 1);
-				 } else {
-					 par.present(robot, 0);
-				 }
-				 Thread.sleep(2000);
-				 //while (Studio.PLAYING) {
-				//	 Thread.sleep(100);
-				 //}
-			 }
-			 
 		 } catch (Exception e) {     
 			 e.printStackTrace();
-			 return;
+			 return null;
 		 }   
+	 }
+	 
+	 public static void stopPresentation(Robot robot) {
+		 try {
+			 System.out.println(" -> Key Escape...");
+			 robot.keyPress(javafx.scene.input.KeyCode.ESCAPE);
+			 System.out.println(" -> delay 200");
+			 Thread.sleep(200);
+			 System.out.println(" -> Key Alt...");
+			 robot.keyPress(javafx.scene.input.KeyCode.ALT);
+			 //Thread.sleep(200);
+			 System.out.println(" -> Key F4...");
+			 robot.keyPress(javafx.scene.input.KeyCode.F4);
+			 //Thread.sleep(200);
+			 //System.out.println(" -> " + pA.toString() + " ReleaseKey F4...");
+			 
+			 //Thread.sleep(200);
+			 System.out.println(" -> ReleaseKey Alt...");
+			 robot.keyRelease(javafx.scene.input.KeyCode.ALT);
+			 System.out.println(" -> ReleaseKey F4...");
+			 robot.keyRelease(javafx.scene.input.KeyCode.F4);
+			 System.out.println(" -> delay 200");
+			 Thread.sleep(200);
+		 } catch (Exception e) {
+			 e.printStackTrace();
+		 }
+		 
 	 }
 }

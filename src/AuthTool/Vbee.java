@@ -58,10 +58,12 @@ public class Vbee extends Thread {
     		HttpPost httpPost = new HttpPost(urlStr);
     	    httpPost.setHeader("Content-Type", "application/json; charset=utf-8");
     	    httpPost.setHeader("Authorization", "Bearer " + auth);
+    	    String vbee_text = text.replace("\n", "."); //Vbee không chấp nhận ký tự xuống dòng nên thay bằng dấu chấm
+    	    vbee_text = vbee_text.replace("\"", ","); //text trong nháy kép được chuyển thành dấu phẩy
     	    String body = "{"
     	    		+ "\"app_id\": \"" + app_id + "\", "
     	    		+ "\"callbackUrl\": \"" + callback_url + "\", "
-    	    		+ "\"input_text\": \"" + text +"\", "
+    	    		+ "\"input_text\": \"" + vbee_text +"\", " //Vbee không chấp nhận ký tự xuống dòng nên thay bằng dấu chấm
     	    		+ "\"voice_code\": \"" + voice_code + "\", "
     	    		+ "\"audio_type\": \"mp3\", "
     	    		+ "\"bitrate\": 128, "
