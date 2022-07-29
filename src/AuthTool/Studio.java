@@ -54,7 +54,7 @@ public class Studio extends Application {
 	public static AudioParagraph audioParagraph = null;
 
 	public static void main(String[] args) {
-	    // Here you can work with args - command line parameters
+		new OptionDialogController().loadOption();
 	    Application.launch(args);
 	}
 
