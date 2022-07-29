@@ -41,8 +41,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Studio extends Application {
-	//public static String POWERPOINT = "C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE";
-	public static String POWERPOINT = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\POWERPNT.EXE";
+	public static String POWERPOINT = "C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE";
+	//public static String POWERPOINT = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\POWERPNT.EXE";
 	
 	public static Stage pStage = null;
 	public static Scenario sc = null;

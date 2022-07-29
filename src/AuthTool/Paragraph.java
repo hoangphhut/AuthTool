@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javafx.collections.ObservableList;
@@ -36,6 +37,7 @@ public class Paragraph {
 	// các dữ liệu Bean
 	public String text; // chứa text cần to speech
 	public String audio_file;	
+	public String audio_file_info;
 	public String vbee_audio_url; // link file mp3 treen Vbee (giữ 1 tuần)
 	public String vbee_request_id; 	
 	
@@ -273,6 +275,7 @@ public class Paragraph {
 		s = s + "], ";
 		s = s + "\"text\" : \"" + text + "\", "; 
 		s = s + "\"audio_file\" : \"" + (this.audio_file != null ? this.audio_file : "") + "\",";
+		s = s + "\"audio_file_info\" : \"" + (this.audio_file_info != null ? this.audio_file_info : "") + "\",";
 		s = s + "\"vbee_audio_url\" : \"" + (this.vbee_audio_url != null ? this.vbee_audio_url : "") + "\",";
 		s = s + "\"vbee_request_id\" : \"" + (this.vbee_request_id != null ? this.vbee_request_id : "") + "\"";
 		s = s + "}";
@@ -287,9 +290,15 @@ public class Paragraph {
 			all_actions.add(p);
 			System.out.println("Paragraph.fromJson() got PAction #" + i + ": " + p.toString());
 		}
+		JsonElement jE = null;
 		this.text = jObj.get("text").getAsString().trim();
 		this.audio_file = jObj.get("audio_file").getAsString().trim();
 		if (this.audio_file.length() == 0) this.audio_file = null;
+		jE = jObj.get("audio_file_info");
+		if (jE != null)	{
+			this.audio_file_info = jE.getAsString().trim();
+			if (this.audio_file_info.length() == 0) this.audio_file = null;
+		}		
 		this.vbee_audio_url = jObj.get("vbee_audio_url").getAsString().trim();
 		if (this.vbee_audio_url.length() == 0) this.vbee_audio_url = null;
 		this.vbee_request_id = jObj.get("vbee_request_id").getAsString().trim();

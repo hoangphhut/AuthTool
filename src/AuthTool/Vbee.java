@@ -19,6 +19,7 @@ import org.apache.http.util.EntityUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import javafx.application.Platform;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 
@@ -146,6 +147,10 @@ public class Vbee extends Thread {
     		Files.copy(in, Paths.get(working_dir + "/" + mp3_file), StandardCopyOption.REPLACE_EXISTING);
     		log("-> mp3 file: " + working_dir + "/" + mp3_file);
     		paragraph.audio_file = working_dir + "/" + mp3_file;
+    		
+    		if (Studio.ttsDialog != null) {
+    			Platform.runLater(()->Studio.ttsDialog.updateFileTab());
+    		}
     		return status;
     		
     	} catch (Exception e) {

@@ -17,15 +17,15 @@
       <ButtonBar prefHeight="40.0" prefWidth="200.0" />
       <ButtonBar layoutX="233.0" layoutY="215.0" prefHeight="40.0" prefWidth="291.0" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="50.0">
         <buttons>
-          <Button fx:id="DeleteBtn" onAction="#DeleteBtnClicked" mnemonicParsing="false" text="Xóa" />
-            <Button fx:id="CancelBtn" onAction="#CancelBtnClicked" layoutX="131.0" layoutY="18.0" mnemonicParsing="false" text="Hủy bỏ" />
+          <Button fx:id="DeleteBtn" mnemonicParsing="false" onAction="#DeleteBtnClicked" text="Xóa" />
+            <Button fx:id="CancelBtn" layoutX="131.0" layoutY="18.0" mnemonicParsing="false" onAction="#CancelBtnClicked" text="Hủy bỏ" />
             <Button fx:id="OKBt" layoutX="42.0" layoutY="18.0" mnemonicParsing="false" onAction="#OKBtnClicked" prefHeight="25.0" prefWidth="100.0" text="Hoàn thành" />
         </buttons>
       </ButtonBar>
       <Label layoutX="57.0" layoutY="49.0" text="Thao tác trình diễn:" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="40.0" />
       <TextField fx:id="ActionDescTfl" editable="false" layoutX="216.0" layoutY="45.0" prefHeight="25.0" prefWidth="212.0" AnchorPane.leftAnchor="170.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="40.0" />
       <Label layoutX="50.0" layoutY="202.0" text="Tạm dừng (giây):" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="200.0" />
-      <ChoiceBox fx:id="DelayCbx" onAction="#DelayChange" layoutX="200.0" layoutY="202.0" prefWidth="70.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="200.0" />
+      <ChoiceBox fx:id="DelayCbx" layoutX="200.0" layoutY="202.0" onAction="#DelayChange" prefWidth="70.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="200.0" />
       <Label layoutX="48.0" layoutY="132.0" text="Thao tác" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="130.0" />
    </children>
 </AnchorPane>

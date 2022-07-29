@@ -16,8 +16,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.robot.Robot;
@@ -132,6 +134,16 @@ public class Scenario {
 	 * Hàm xóa thành phần text trên scenbario tương ứng với button b được click
 	 */
 	public void deleteParagraph(Button b) {
+		if (Studio.sc.all_paragraph.size() == 1) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Xóa đoạn text");
+			alert.setHeaderText("Không thể xóa đoạn text.");
+			String s ="Kịch bản hiện tại có duy nhất một đoạn text. Không được xóa đoạn text này.";
+			alert.setContentText(s);
+			alert.show();
+			return;
+			 
+		}
 		Paragraph curP = Paragraph.search_paragraph_by_clicked_button(b);
 		if (curP == null) return; // không tìm thấy thành phần text cần insert
 		int index = Studio.sc.all_paragraph.indexOf(curP);

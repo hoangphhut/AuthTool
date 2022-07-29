@@ -73,7 +73,7 @@
                               <ChoiceBox fx:id="voice_codeCbx" prefHeight="25.0" prefWidth="805.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               <ChoiceBox fx:id="speed_rateCbx" prefWidth="50.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                               <Button fx:id="TextToSpeechBt" alignment="TOP_LEFT" contentDisplay="CENTER" mnemonicParsing="false" onAction="#TextToSpeechBtnClicked" text="Tạo file âm thanh" GridPane.rowIndex="5" GridPane.valignment="TOP" />
-                              <TextArea fx:id="LogTa" editable="false" prefHeight="201.0" prefWidth="568.0" text="file: 23857618374651932741.mp3&#10;thời gian tạo: 17:23:57.65 25/7/2022" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.rowSpan="2" />
+                              <TextArea fx:id="LogTa" editable="false" prefHeight="201.0" prefWidth="568.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.rowSpan="2" />
                               <CheckBox fx:id="ProgressCk" mnemonicParsing="false" selected="true" text="Theo dõi tiến độ xử lý" GridPane.rowIndex="5" GridPane.valignment="TOP">
                                  <GridPane.margin>
                                     <Insets left="20.0" top="40.0" />

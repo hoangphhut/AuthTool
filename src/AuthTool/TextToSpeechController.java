@@ -1,6 +1,12 @@
 package AuthTool;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
@@ -67,8 +73,14 @@ public class TextToSpeechController {
 	 * Hàm khởi tạo Controller để xử lý một Script
 	 */
 	public void initToShow(Paragraph p) {
-		paragraph = p;
-		TextTa.setText(paragraph.textArea.getText());
+		paragraph = p;		
+		if (paragraph.audio_file != null) {
+			String s = paragraph.audio_file;
+			if (paragraph.audio_file_info != null) s = s + " [" + paragraph.audio_file_info + "]";
+			TextTa.setText(s);
+		} else {
+			TextTa.setText("Chưa có file âm thanh");
+		}
 		this.updateFileTab();
 		
 		ObservableList<String> vbee_voice_codes = FXCollections.observableArrayList(
@@ -169,7 +181,18 @@ public class TextToSpeechController {
 	 */
 	public void updateFileTab() {
 		if (paragraph.audio_file != null) {
-			Studio.ttsDialog.AudioFileLb.setText("File âm thanh: " + paragraph.audio_file);
+			String s = "File âm thanh: " + paragraph.audio_file;
+			Path f = Paths.get(paragraph.audio_file);
+			try {
+				BasicFileAttributes attrs = Files.readAttributes(f, BasicFileAttributes.class);
+				LocalDateTime localT = LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault());
+				paragraph.audio_file_info = localT.toString();
+			} catch (Exception ignore) {}
+			
+			if (paragraph.audio_file_info != null) {
+				s = s + " [" + paragraph.audio_file_info + "]";
+			}
+			Studio.ttsDialog.AudioFileLb.setText(s);
 			Studio.ttsDialog.PlayBt.setDisable(false);
 		} else {
 			Studio.ttsDialog.AudioFileLb.setText("Chưa có file âm thanh");
