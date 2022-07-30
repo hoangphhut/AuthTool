@@ -2,11 +2,13 @@ package AuthTool;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -41,10 +43,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Studio extends Application {
+	// Các thông tin được lưu trong Option:
 	public static String POWERPOINT = "C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE";
 	//public static String POWERPOINT = "C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\POWERPNT.EXE";
-	
+	public static String LastOpenFile = null;
+		
 	public static Stage pStage = null;
+	public static BorderPane mainPane = null;
 	public static Scenario sc = null;
 	public static TextToSpeechController ttsDialog = null;
 	public static Stage ttsDialogStage = null;
@@ -54,16 +59,15 @@ public class Studio extends Application {
 	public static AudioParagraph audioParagraph = null;
 
 	public static void main(String[] args) {
-		new OptionDialogController().loadOption();
+		Studio.loadOption();		
 	    Application.launch(args);
 	}
 
 	 @Override
 	 public void start(Stage primaryStage) throws Exception {
 	     primaryStage.setTitle("Trình biên soạn bài giảng");
-	     pStage = primaryStage;
-	     
-	     BorderPane mainPane = new BorderPane();
+	     pStage = primaryStage;	     
+	     mainPane = new BorderPane();
 	     Scene primaryScene = new Scene(mainPane, 1000,500);
 	     primaryStage.setScene(primaryScene);
 	     	     
@@ -80,7 +84,9 @@ public class Studio extends Application {
         		 
         		 sc = new Scenario(); // cần chuyển sang lúc Open hoăc New file
 	             sc.FileName = file.getPath().replace("\\", "/");
-	             sc.WorkingDir = sc.FileName.substring(0,sc.FileName.length() - file.getName().length() - 1); 
+	             sc.WorkingDir = sc.FileName.substring(0,sc.FileName.length() - file.getName().length() - 1);
+	             Studio.LastOpenFile = sc.FileName;
+	             Studio.saveOption();
 	             primaryStage.setTitle("Trình biên soạn bài giảng: " + sc.FileName);
 	    	     
 	             Paragraph p = new Paragraph();
@@ -100,29 +106,10 @@ public class Studio extends Application {
         		 FileChooser fileChooser = new FileChooser();
         		 File file = fileChooser.showOpenDialog(Studio.pStage);
         		 if (file == null) return;
-        		 
-        		 sc = new Scenario(); // cần chuyển sang lúc Open hoăc New file
-	             sc.FileName = file.getPath().replace("\\", "/");
-	             System.out.println("FileName: " + sc.FileName);
-	             System.out.println("FileName: " + file.getName());
-	             sc.WorkingDir = sc.FileName.substring(0,sc.FileName.length() - file.getName().length() - 1);
-	             System.out.println("W.Dir: " + sc.WorkingDir);
-	             primaryStage.setTitle("Trình biên soạn bài giảng: " + sc.FileName);
-	             
-	             
-	    	     try {
-	    	    	 String content = Files.readString(Path.of(sc.FileName));
-	    	    	 JsonParser parser = new JsonParser();
-	    	    	 JsonObject jObj = parser.parse(content).getAsJsonObject();
-	    	    	 sc.fromJson(jObj);
-	    	    	 sc.initUI(mainPane);
-	    	    	 sc.debug();
-	    	     } catch (Exception e) {
-	    	    	 e.printStackTrace();
-	    	     }
-	    	     mainPane.setCenter(sc.scrollPane);	    	        
-	             sc.gridPane.setVisible(true);
-	             sc.resize((int)pStage.getWidth());
+        		  
+        		 Studio.openFile(file.getPath());
+        		 Studio.LastOpenFile = sc.FileName;
+        		 Studio.saveOption();
  	         }
 	      });
 	     MenuItem filemenu3=new MenuItem("Ghi ra file");
@@ -156,10 +143,12 @@ public class Studio extends Application {
 	             primaryStage.setTitle("Trình biên soạn bài giảng: " + sc.FileName);
  
 	        	 try {
-	        		 Files.write(Paths.get(sc.FileName), sc.toJson().getBytes());	        	 
+	        		 Files.write(Paths.get(sc.FileName), sc.toJson().getBytes());	        		 
 	        	 } catch (Exception e) {
 	        		 e.printStackTrace();
 	        	 }
+	        	 Studio.LastOpenFile = sc.FileName;
+	        	 Studio.saveOption();
 	         }
 	      });
 
@@ -218,8 +207,9 @@ public class Studio extends Application {
 	     
 	     // pane xử lý text to speech 
 	     GridPane ttsPane = new GridPane();
-	     
 	     primaryStage.show();
+	     if (Studio.LastOpenFile != null) Studio.openFile(Studio.LastOpenFile);
+	     
 	     	     
 	     primaryStage.widthProperty().addListener((observable, oldValue, newValue) ->
          	sc.resize(newValue.intValue())
@@ -327,5 +317,76 @@ public class Studio extends Application {
 			 e.printStackTrace();
 		 }
 		 
+	 }
+	 
+	 public static void openFile(String fN) {
+		 System.out.println("openFile: " + fN);
+		 
+		 sc = new Scenario(); 
+		 sc.FileName = fN.replace("\\", "/");
+		 int n = sc.FileName.lastIndexOf("/");
+         sc.WorkingDir = sc.FileName.substring(0,n);
+         System.out.println("W.Dir: " + sc.WorkingDir);
+         Studio.pStage.setTitle("Trình biên soạn bài giảng: " + sc.FileName);         
+         
+	     try {
+	    	 String content = Files.readString(Path.of(sc.FileName));
+	    	 JsonParser parser = new JsonParser();
+	    	 JsonObject jObj = parser.parse(content).getAsJsonObject();
+	    	 sc.fromJson(jObj);
+	    	 sc.initUI(mainPane);
+	    	 sc.debug();
+	     } catch (Exception e) {
+	    	 e.printStackTrace();
+	     }
+	     mainPane.setCenter(sc.scrollPane);	    	        
+         sc.gridPane.setVisible(true);
+         sc.resize((int)pStage.getWidth());
+	 }
+	 
+	 public static void saveOption() {
+		 Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+		 System.out.println("Working dir: " + path.toString());
+		 String oF = path.toString() + "/" + "option.json";
+		 try {
+			 String s = "{"
+					 + "\"POWERPOINT\" : \"" + Studio.POWERPOINT.replace("\\", "/") + "\"";
+			 if (Studio.LastOpenFile != null) {
+				 s = s + ", \"LastOpenFile\" : \"" + Studio.LastOpenFile.replace("\\", "/") + "\" }";
+			 } else {
+				 s = s + "}";
+			 }
+			 Files.write(Paths.get(oF), s.getBytes());
+		  } catch (Exception e) {
+		   	 e.printStackTrace();
+		  }
+	 }
+	 
+	 public static void loadOption() {
+		 Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+		 System.out.println("Working dir: " + path.toString());
+		 String oF = path.toString() + "/" + "option.json";
+		 try {
+			 Path p = Path.of(oF);
+			 String oS = Files.readString(p);
+			 
+		     JsonParser parser = new JsonParser();
+		     JsonObject jObj = parser.parse(oS).getAsJsonObject();
+		     
+		     JsonElement jE = jObj.get("POWERPOINT");
+		     if (jE != null) {
+		    	 Studio.POWERPOINT = jE.getAsString().trim();
+		    	 System.out.println("POWERPOINT: " + Studio.POWERPOINT);
+		     }
+		    	 
+		     jE = jObj.get("LastOpenFile");
+		     if (jE != null ) {
+		    	 Studio.LastOpenFile = jE.getAsString().trim();
+		    	 System.out.println("LastOpenFile: " + Studio.LastOpenFile);
+		     }
+		  } catch (Exception e) {
+		   	 System.out.println("Không đọc được file cấu hình: " + oF);
+		   	System.out.println("Chương trình có thể không hoạt động tốt nếu thiếu một số thông số cấu hình!");
+		  }
 	 }
 }

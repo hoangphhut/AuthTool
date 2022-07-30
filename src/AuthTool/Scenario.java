@@ -285,16 +285,9 @@ public class Scenario {
 	}
 
 	public void textToSpeechDialog(Button b) {
-		int index = -1;
-		for (int i=0; i<all_paragraph.size(); i++) {
-			Paragraph t = all_paragraph.get(i);
-			if (t.toSpeechBtn == b) {
-				index = i;				
-				break;
-			}
-		}
-		if (index < 0) return;
-		
+		Paragraph p = Paragraph.search_paragraph_by_clicked_button(b);
+		if (p == null) return;
+		p.text = p.textArea.getText().trim();
 		try {
 			URL fxmlLocation = getClass().getResource("../TextToSpeech.fxml");
 			System.out.println("URL: " + fxmlLocation.toString());
@@ -304,7 +297,7 @@ public class Scenario {
 			System.out.println("controller: " + Studio.ttsDialog);       	 	
 			Scene scene = new Scene(parent);
 			Studio.ttsDialogStage = new Stage();
-			Studio.ttsDialog.initToShow(all_paragraph.get(index));
+			Studio.ttsDialog.initToShow(p);
        	 	Studio.ttsDialogStage.initModality(Modality.APPLICATION_MODAL);
        	 	Studio.ttsDialogStage.setScene(scene);
        	 	Studio.ttsDialogStage.setTitle("Biên soạn dữ liệu âm thanh");

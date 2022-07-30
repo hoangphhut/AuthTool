@@ -73,14 +73,8 @@ public class TextToSpeechController {
 	 * Hàm khởi tạo Controller để xử lý một Script
 	 */
 	public void initToShow(Paragraph p) {
-		paragraph = p;		
-		if (paragraph.audio_file != null) {
-			String s = paragraph.audio_file;
-			if (paragraph.audio_file_info != null) s = s + " [" + paragraph.audio_file_info + "]";
-			TextTa.setText(s);
-		} else {
-			TextTa.setText("Chưa có file âm thanh");
-		}
+		paragraph = p;
+		TextTa.setText(p.text);
 		this.updateFileTab();
 		
 		ObservableList<String> vbee_voice_codes = FXCollections.observableArrayList(
@@ -180,6 +174,7 @@ public class TextToSpeechController {
 	 * Hàm này tham chiếu đến các trường trong DialogBox và có thể được gọi từ các thread không liên quan đến FX nên cần tham chiếu qua Studio
 	 */
 	public void updateFileTab() {
+		System.out.println("updateFileTab() " + paragraph.audio_file);
 		if (paragraph.audio_file != null) {
 			String s = "File âm thanh: " + paragraph.audio_file;
 			Path f = Paths.get(paragraph.audio_file);

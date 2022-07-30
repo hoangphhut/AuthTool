@@ -41,7 +41,7 @@ public class ActionDialogController {
 				PreAction.APP + " Ứng dụng trình diễn");
 		ActionCategoryCbx.setItems(actionCat);
 		
-		ObservableList<String> delayList = FXCollections.observableArrayList("0", "100", "200", "500", "1000", "2000", "3000", "5000");
+		ObservableList<String> delayList = FXCollections.observableArrayList("0", "100", "200", "500", "1000", "2000", "3000", "5000", "10000");
 		DelayCbx.setItems(delayList);
 		
 		if (WorkingMode == 0) { // Add new
@@ -49,7 +49,7 @@ public class ActionDialogController {
 			ActionCategoryCbx.getSelectionModel().select(0);
 			ActionCbx.getSelectionModel().select(0);
 			ActionParaTfl.setText("");
-			DelayCbx.getSelectionModel().select(0);
+			DelayCbx.getSelectionModel().select(2);
 		} else { // Edit
 			DeleteBtn.setVisible(true);
 			if (oldAction != null) {

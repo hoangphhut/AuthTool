@@ -24,7 +24,7 @@
       </ButtonBar>
       <Label layoutX="57.0" layoutY="49.0" text="Thao tác trình diễn:" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="40.0" />
       <TextField fx:id="ActionDescTfl" editable="false" layoutX="216.0" layoutY="45.0" prefHeight="25.0" prefWidth="212.0" AnchorPane.leftAnchor="170.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="40.0" />
-      <Label layoutX="50.0" layoutY="202.0" text="Tạm dừng (giây):" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="200.0" />
+      <Label layoutX="50.0" layoutY="202.0" text="Tạm dừng (miligiây):" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="200.0" />
       <ChoiceBox fx:id="DelayCbx" layoutX="200.0" layoutY="202.0" onAction="#DelayChange" prefWidth="70.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="200.0" />
       <Label layoutX="48.0" layoutY="132.0" text="Thao tác" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="130.0" />
    </children>

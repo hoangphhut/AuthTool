@@ -208,6 +208,7 @@ public class Paragraph {
 	    textArea.setText(text);
 	    textArea.setWrapText(true);
 	    textArea.setPrefHeight(50);
+	    textArea.setMinWidth(50);
 	    mainPane.setCenter(textArea);    
 	}
 	
@@ -275,7 +276,7 @@ public class Paragraph {
 		s = s + "], ";
 		s = s + "\"text\" : \"" + text + "\", "; 
 		s = s + "\"audio_file\" : \"" + (this.audio_file != null ? this.audio_file : "") + "\",";
-		s = s + "\"audio_file_info\" : \"" + (this.audio_file_info != null ? this.audio_file_info : "") + "\",";
+//		s = s + "\"audio_file_info\" : \"" + (this.audio_file_info != null ? this.audio_file_info : "") + "\",";
 		s = s + "\"vbee_audio_url\" : \"" + (this.vbee_audio_url != null ? this.vbee_audio_url : "") + "\",";
 		s = s + "\"vbee_request_id\" : \"" + (this.vbee_request_id != null ? this.vbee_request_id : "") + "\"";
 		s = s + "}";
@@ -290,19 +291,31 @@ public class Paragraph {
 			all_actions.add(p);
 			System.out.println("Paragraph.fromJson() got PAction #" + i + ": " + p.toString());
 		}
+		
 		JsonElement jE = null;
-		this.text = jObj.get("text").getAsString().trim();
-		this.audio_file = jObj.get("audio_file").getAsString().trim();
-		if (this.audio_file.length() == 0) this.audio_file = null;
+		jE = jObj.get("text");
+		if (jE != null)	this.text = jE.getAsString().trim();
+		
+		jE = jObj.get("audio_file");
+		if (jE != null) {
+			this.audio_file = jE.getAsString().trim();
+			if (this.audio_file.length() == 0) this.audio_file = null;
+		}
+		
+		/*
 		jE = jObj.get("audio_file_info");
 		if (jE != null)	{
 			this.audio_file_info = jE.getAsString().trim();
-			if (this.audio_file_info.length() == 0) this.audio_file = null;
+			if (this.audio_file_info.length() == 0) this.audio_file_info = null;
 		}		
+		*/
+		
 		this.vbee_audio_url = jObj.get("vbee_audio_url").getAsString().trim();
 		if (this.vbee_audio_url.length() == 0) this.vbee_audio_url = null;
 		this.vbee_request_id = jObj.get("vbee_request_id").getAsString().trim();
 		if (this.vbee_request_id.length() == 0) this.vbee_request_id = null;
+		
+		System.out.println("Paragraph.fromJson(): " + this.toJson());
 	}
 	
 	/*
