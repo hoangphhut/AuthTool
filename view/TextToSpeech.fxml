@@ -19,7 +19,7 @@
 
 <AnchorPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AuthTool.TextToSpeechController">
    <children>
-      <Label layoutX="59.0" layoutY="36.0" prefHeight="17.0" prefWidth="273.0" text="Tạo dữ liệu âm thanh cho nội dung:" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
+      <Label layoutX="59.0" layoutY="36.0" prefHeight="17.0" prefWidth="273.0" text="Tạo dữ liệu âm thanh cho nội dung thuyết minh:" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0" />
       <TextArea fx:id="TextTa" editable="false" layoutX="14.0" layoutY="22.0" prefHeight="113.0" prefWidth="660.0" wrapText="true" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="40.0" />
       <ButtonBar layoutX="286.0" layoutY="254.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="20.0">
         <buttons>

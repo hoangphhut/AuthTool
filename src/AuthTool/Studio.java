@@ -163,10 +163,12 @@ public class Studio extends Application {
 	     FileMenu.getItems().add(5, new SeparatorMenuItem());
 	     
 	     Menu PresentMenu=new Menu("Trình diễn");
-	     MenuItem PresentMenu1=new MenuItem("Xem trước");
+	     MenuItem PresentMenu1=new MenuItem("Bắt đầu");
 	     PresentMenu1.setOnAction(new EventHandler<ActionEvent>() {
 	         public void handle(ActionEvent event) {
-	    	     new Studio().startPresentation();
+	    	     Paragraph p = sc.all_paragraph.get(0);
+	             Robot r = new Robot();	             
+	             p.present(r, true, 0);
 	         }
 	     });
 	     MenuItem EditMenu2=new MenuItem("Xem trước nhanh");
@@ -243,7 +245,7 @@ public class Studio extends Application {
 	  * Hàm kiểm tra kịch bản Scenario, chạy Powerpoint, mở file trình diễn.
 	  * Trả về null nếu không thành công
 	  */
-	 public Process startPresentation() {
+	 public Process startPresentation(int minDelay) {
 		 if (Studio.sc == null || Studio.sc.all_paragraph == null || Studio.sc.all_paragraph.size() == 0) {
 			 Alert alert = new Alert(AlertType.INFORMATION);
 			 alert.setTitle("Trình diễn");
@@ -282,8 +284,10 @@ public class Studio extends Application {
 			 System.out.println("Slide show action: " + pA.toString());
 			 Process p = new ProcessBuilder(Studio.POWERPOINT, pA.ActionPara).start();	
  
-			 if (pA.Delay > 0) Thread.sleep(pA.Delay); 
-			 //Thread.sleep(3000);
+			 if (minDelay < pA.Delay) minDelay = pA.Delay;
+			 Thread.yield();
+			 Thread.sleep(minDelay); 
+
 			 return p;
 
 		 } catch (Exception e) {     

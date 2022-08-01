@@ -90,20 +90,16 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Add action...");
 	             scenario.addPresentationAction(addActionBtn);
 	          }  
 	    });
 	    
-	    toSpeechBtn = new Button("Thuyết minh");
+	    toSpeechBtn = new Button("Âm thanh");
 	    topPane.addRow(0, toSpeechBtn);
 	    toSpeechBtn.setOnAction(new EventHandler<ActionEvent>() {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Text to speech...");
 	             scenario.textToSpeechDialog(toSpeechBtn);
 	          }  
 	    });
@@ -114,11 +110,9 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent e) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Preview paragraph...");
 	             Paragraph p = Paragraph.search_paragraph_by_clicked_button((Button) e.getSource());
 	             Robot r = new Robot();	             
-	             p.present(r);
+	             p.present(r, false, 1000);
 	          }  
 	    });
 	    
@@ -149,8 +143,6 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Move up...");
 	             scenario.moveTextUp(moveUpBtn);
 	         }  
 	    });
@@ -161,8 +153,6 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Chèn text...");
 	             scenario.insertParagraph(insertBtn);
 	         }  
 	    });
@@ -172,8 +162,6 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Thêm mới text...");
 	             scenario.addNewParagraph();
 	         }  
 	    });
@@ -185,8 +173,6 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Xóa text...");
 	             scenario.deleteParagraph(deleteBtn);
 	         }  
 	    });
@@ -197,8 +183,6 @@ public class Paragraph {
 	    	 
 	    	 @Override
 	    	 public void handle(ActionEvent arg0) {  
-	    		 // TODO Auto-generated method stub  
-	             System.out.println("Move down...");
 	             scenario.moveTextDown(moveDownBtn);
 	         }  
 	    });
@@ -351,9 +335,9 @@ public class Paragraph {
 	
 	/*
 	 * Hàm chỉ chạy các action, bắt đầu từ startAct, không phát audio.
-	 * Nếu thông số delay = 0 thì delay theo từng Action
+	 * Sau mỗi action, delay theo thông số minDelay kết hợp với delay trong action
 	 */
-	public void quickShow(Robot robot, int startAct, int delay) {
+	public void quickShow(Robot robot, int startAct, int minDelay) {
 		System.out.println(this.toString() + " -> quickShow() startAction: " + startAct);
 		try {
 			for (int j=startAct; j<all_actions.size(); j++) {
@@ -381,31 +365,33 @@ public class Paragraph {
 						 Studio.stopPresentation(robot);
 					 }
 				 }
-				if (delay > 0) {
-					Thread.sleep(delay);
-				} else if (pA.Delay > 0) {
-					Thread.sleep(pA.Delay);
-				}
+				if (minDelay < pA.Delay) minDelay = pA.Delay;
+				Thread.yield();
+				System.out.println(" -> after yield(), delay " + minDelay);
+				Thread.sleep(minDelay);									
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void present(Robot robot) {
+	public void present(Robot robot, boolean continueNext, int delay) {
 		if (robot == null) robot = new Robot();
 		
-		System.out.println("Quick jump to Paragraph...");
-		Studio.presentationProcess = Studio.sc.jumpToPreview(robot, this);
+		Studio.presentationProcess = Studio.sc.startPresentation(robot, this, delay);
 		if (Studio.presentationProcess == null) return;
 
-		System.out.println("Bắt đầu play audio: " + audio_file);
+		System.out.println("Play audio sau tương tác trình diễn: " + audio_file);
 		Studio.audioParagraph = new AudioParagraph();
 		Studio.audioParagraph.initalize(this);
-		Studio.audioParagraph.stopPresentationByComplete = true;
 		Studio.audioParagraph.robot = robot;
-		Studio.audioParagraph.continueNextParagraph = true;
+		if (continueNext) {
+			Studio.audioParagraph.continueNextParagraph = true;
+			Studio.audioParagraph.stopPresentationByComplete = false;
+		} else {
+			Studio.audioParagraph.continueNextParagraph = false;
+			Studio.audioParagraph.stopPresentationByComplete = true;
+		}
 		Studio.audioParagraph.start();
-
 	}
 }

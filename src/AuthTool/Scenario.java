@@ -18,6 +18,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
@@ -133,17 +135,30 @@ public class Scenario {
 	/*
 	 * Hàm xóa thành phần text trên scenbario tương ứng với button b được click
 	 */
-	public void deleteParagraph(Button b) {
+	public void deleteParagraph(Button b) {		
 		if (Studio.sc.all_paragraph.size() == 1) {
 			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Xóa đoạn text");
-			alert.setHeaderText("Không thể xóa đoạn text.");
-			String s ="Kịch bản hiện tại có duy nhất một đoạn text. Không được xóa đoạn text này.";
+			alert.setTitle("Xóa đoạn thuyết minh");
+			alert.setHeaderText("Không thể xóa đoạn thuyết minh.");
+			String s ="Kịch bản hiện tại có duy nhất một đoạn thuyết minh. Không được xóa đoạn thuyết minh này.";
 			alert.setContentText(s);
 			alert.show();
 			return;
 			 
 		}
+		
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("Xóa đoạn thuyết minh");
+		alert.setHeaderText("Bạn có chắc chắn muốn xóa đoạn thuyết minh này?");
+		alert.setContentText("Lưu ý rằng file kịch bản vẫn lưu trữ đoạn thuyết minh dù đã bị xóa.\n"
+				+"Đoạn thuyết minh sẽ bị xóa vĩnh viễn khỏi file trình chiếu khi bạn ghi kịch bản trình chiếu xuống file.");
+		ButtonType yesButton = new ButtonType("Chắc chắn xóa", ButtonData.YES);
+		ButtonType noButton = new ButtonType("Không xóa nữa", ButtonData.NO);
+		alert.getButtonTypes().setAll(yesButton, noButton);
+		ButtonType result = alert.showAndWait().orElse(noButton);
+		if (result == noButton)return;
+
+		
 		Paragraph curP = Paragraph.search_paragraph_by_clicked_button(b);
 		if (curP == null) return; // không tìm thấy thành phần text cần insert
 		int index = Studio.sc.all_paragraph.indexOf(curP);
@@ -351,30 +366,32 @@ public class Scenario {
 	}
 	 
 	/*
-	 * Hàm thực hiện preview kịch bản. Preview tức là không phát video, chỉ chạy các action.
+	 * Hàm thực hiện trình diễn theo kịch bản, bắt đầu từ đoạn thuyết minh p.
 	 * Chạy nhanh từ đầu đến paragraph p-1, sau đó show p.
 	 * Trả về null nếu không thành công.
 	 */
-	public Process jumpToPreview(Robot robot, Paragraph p) {
-		Process process = new Studio().startPresentation();
+	public Process startPresentation(Robot robot, Paragraph p, int minDelay) {
+		Process process = new Studio().startPresentation(minDelay);
 		if (process == null) return null;
 		
 		//reset các phím có liên quan 
-		//robot.keyRelease(javafx.scene.input.KeyCode.SHIFT);
-		//robot.keyRelease(javafx.scene.input.KeyCode.ALT);
-		//robot.keyRelease(javafx.scene.input.KeyCode.CONTROL);
-		//robot.keyPress(javafx.scene.input.KeyCode.ESCAPE);
+		robot.keyPress(javafx.scene.input.KeyCode.ESCAPE);
+		robot.keyRelease(javafx.scene.input.KeyCode.SHIFT);
+		robot.keyRelease(javafx.scene.input.KeyCode.ALT);
+		robot.keyRelease(javafx.scene.input.KeyCode.CONTROL);
+		
 		
 		for (int i=0; i<all_paragraph.size(); i++) {
 			System.out.println("Quick jump to paragraph #" + i);
 			Paragraph pp = all_paragraph.get(i);
-			int delay = 0;
-			if (pp != p) delay = 0;
-			if (i > 0) {
-				pp.quickShow(robot, 0, delay);
+
+			if (pp == p) minDelay = 0;
+			if (i == 0)	{
+				pp.quickShow(robot, 1, minDelay); // chạy từ action số 1 của pp vì pp là đầu (action đầu là mở file PPT)
 			} else {
-				pp.quickShow(robot, 1, delay); // action đầu tiên của para đầu tiên là mở file PPT (đã thực hiện trong Studio.startPresentation()
+				pp.quickShow(robot, 0, minDelay); // chạy từ action số 0 
 			}
+			
 			if (pp == p) return process;
 		}
 		return null;
