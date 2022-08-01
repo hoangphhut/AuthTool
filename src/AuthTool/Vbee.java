@@ -38,7 +38,7 @@ public class Vbee extends Thread {
     public String status; // trạng thái đang xử lý tại Vbee
     public String working_dir; //thư mục làm việc (chứa file kết quả)
     public String mp3_file = null; //file kết quả
-    public String mp3_url = null; //url chứa file kết quả (sẽ bị xóa khi hết hạn)
+    public String mp3_url = null; //url chứa file kết quả (sẽ bị xóa khi hết hạn) 
     
     public Paragraph paragraph = null; // Paragraph đang được Vbee xử lý
     public CheckBox ProgressCk; // để chọn có theo dõi tiến độ xử lý hay không (xuất hiện trên TTSDialog)

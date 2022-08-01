@@ -131,6 +131,7 @@ public class TextToSpeechController {
 
         Studio.audioParagraph = new AudioParagraph();
         Studio.audioParagraph.initalize(this.paragraph);
+        if (Studio.audioParagraph.mediaPlayer == null) return; 
         Studio.audioParagraph.manualSettingCompoleteAction = true;
         
         Studio.audioParagraph.mediaPlayer.setOnEndOfMedia(() -> {

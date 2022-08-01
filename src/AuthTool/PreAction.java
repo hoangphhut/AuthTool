@@ -12,7 +12,7 @@ public class PreAction {
 	public static String F5 = "F5";
 	public static String SHIFT_F5 = "Shift-F5";
 	public static String ALT_F4 = "Alt-F4";
-	public static String ENTER = "Enter";
+	public static String ENTER = "Enter"; 
 	public static String LEFT = "Left";
 	public static String RIGHT = "Right";
 	public static String PGUP = "PgUp";

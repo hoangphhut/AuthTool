@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -152,7 +153,7 @@ public class Studio extends Application {
 	         }
 	      });
 
-	     MenuItem filemenu5=new MenuItem("Kết thúc");
+	     MenuItem filemenu5=new MenuItem("Kết thúc chương trình");
 	     filemenu5.setOnAction(new EventHandler<ActionEvent>() {
 	         public void handle(ActionEvent event) {
 	    	     System.exit(0);
@@ -282,16 +283,17 @@ public class Studio extends Application {
 		 try {
 			 
 			 System.out.println("Slide show action: " + pA.toString());
-			 Process p = new ProcessBuilder(Studio.POWERPOINT, pA.ActionPara).start();	
- 
+			 Process p = new ProcessBuilder(Studio.POWERPOINT, pA.ActionPara).start();		 
+			 
 			 if (minDelay < pA.Delay) minDelay = pA.Delay;
-			 Thread.yield();
+			 //Thread.yield();
 			 Thread.sleep(minDelay); 
 
 			 return p;
 
 		 } catch (Exception e) {     
-			 e.printStackTrace();
+			 //e.printStackTrace();
+			 System.err.println("Có lỗi khi chạy chương trình trình diễn:\n- POWERPOINT: " + Studio.POWERPOINT + "\n" + "- PPT file: " + pA.ActionPara);
 			 return null;
 		 }   
 	 }
@@ -318,7 +320,7 @@ public class Studio extends Application {
 			 System.out.println(" -> delay 200");
 			 Thread.sleep(200);
 		 } catch (Exception e) {
-			 e.printStackTrace();
+			 e.printStackTrace(); 
 		 }
 		 
 	 }
@@ -335,8 +337,7 @@ public class Studio extends Application {
          
 	     try {
 	    	 String content = Files.readString(Path.of(sc.FileName));
-	    	 JsonParser parser = new JsonParser();
-	    	 JsonObject jObj = parser.parse(content).getAsJsonObject();
+	    	 JsonObject jObj = JsonParser.parseString(content).getAsJsonObject();
 	    	 sc.fromJson(jObj);
 	    	 sc.initUI(mainPane);
 	    	 sc.debug();

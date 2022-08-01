@@ -316,7 +316,7 @@ public class Scenario {
        	 	Studio.ttsDialogStage.initModality(Modality.APPLICATION_MODAL);
        	 	Studio.ttsDialogStage.setScene(scene);
        	 	Studio.ttsDialogStage.setTitle("Biên soạn dữ liệu âm thanh");
-       	 	Studio.ttsDialogStage.showAndWait();
+       	 	Studio.ttsDialogStage.showAndWait(); 
         } catch (Exception e) {
        	 	e.printStackTrace();
         }

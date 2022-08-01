@@ -381,9 +381,11 @@ public class Paragraph {
 		Studio.presentationProcess = Studio.sc.startPresentation(robot, this, delay);
 		if (Studio.presentationProcess == null) return;
 
-		System.out.println("Play audio sau tương tác trình diễn: " + audio_file);
+		System.out.println("Play audio thuyết minh: " + audio_file);
 		Studio.audioParagraph = new AudioParagraph();
 		Studio.audioParagraph.initalize(this);
+		//if (Studio.audioParagraph.mediaPlayer == null) return;  
+		
 		Studio.audioParagraph.robot = robot;
 		if (continueNext) {
 			Studio.audioParagraph.continueNextParagraph = true;

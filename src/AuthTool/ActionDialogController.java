@@ -8,7 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 
-public class ActionDialogController {
+public class ActionDialogController { 
 	@FXML
     public TextField ActionDescTfl;
 	@FXML
