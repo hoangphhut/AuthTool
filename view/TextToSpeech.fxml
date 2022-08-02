@@ -37,7 +37,7 @@
                         <Button fx:id="PlayBt" layoutX="173.0" layoutY="51.0" mnemonicParsing="false" onAction="#PlayBtClicked" text="Nghe thử" />
                         <ImageView fx:id="PlayingImg" fitHeight="25.0" fitWidth="65.0" layoutX="256.0" layoutY="51.0" pickOnBounds="true" preserveRatio="true" visible="false">
                            <image>
-                              <Image url="@../img/playing.gif" />
+                              <Image url="@playing.gif" />
                            </image>
                         </ImageView>
                      </children></AnchorPane>
