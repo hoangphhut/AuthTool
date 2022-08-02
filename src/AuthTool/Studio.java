@@ -173,6 +173,11 @@ public class Studio extends Application {
 	         }
 	     });
 	     MenuItem EditMenu2=new MenuItem("Xem trước nhanh");
+	     EditMenu2.setOnAction(new EventHandler<ActionEvent>() {
+	         public void handle(ActionEvent event) {
+	        	 new Studio().test();
+	         }
+	     });
 	     MenuItem EditMenu3=new MenuItem("Tạo Video");
 	     MenuItem PresentMenu4=new MenuItem("Kết thúc trình diễn");
 	     PresentMenu4.setOnAction(new EventHandler<ActionEvent>() {
@@ -393,5 +398,23 @@ public class Studio extends Application {
 		   	 System.out.println("Không đọc được file cấu hình: " + oF);
 		   	System.out.println("Chương trình có thể không hoạt động tốt nếu thiếu một số thông số cấu hình!");
 		  }
+	 }
+	 
+	 public void test() {
+		 try {
+			 URL fxmlLocation = getClass().getResource("../Studio.fxml");
+			 System.out.println("URL: " + fxmlLocation.toString());
+			 FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
+			 Parent parent = fxmlLoader.load();
+			 //Studio.ttsDialog = fxmlLoader.<TextToSpeechController>getController();
+			 //System.out.println("controller: " + Studio.ttsDialog);
+			 Scene scene = new Scene(parent);
+			 Stage stage = new Stage();
+			 stage.initModality(Modality.APPLICATION_MODAL);
+			 stage.setScene(scene);
+			 stage.showAndWait();
+		 } catch (Exception e) {
+			 e.printStackTrace();
+	     }
 	 }
 }
